@@ -4,6 +4,8 @@ public class PlayerMovement : MonoBehaviour
 {
     public InputActionReference move;
     public InputActionReference jump;
+    public InputActionReference interact;
+
     bool takingInputs = true;
 
     bool grounded;
@@ -38,7 +40,7 @@ public class PlayerMovement : MonoBehaviour
         if (takingInputs)
         {
             moveDir = move.action.ReadValue<Vector2>();
-            //if(moveDir != Vector2.zero) Debug.Log("movedir = " + moveDir);
+            if(moveDir != Vector2.zero) Debug.Log("movedir = " + moveDir);
             if (jumpLoaded && jump.action.IsPressed())
             {
                 jumpPressed = true;
@@ -51,7 +53,7 @@ public class PlayerMovement : MonoBehaviour
         Debug.DrawRay(rb.transform.position, Vector3.down * rb.transform.localScale.x, Color.blue);
         if (Physics.Raycast(rb.transform.position, Vector3.down, rb.transform.localScale.x * 1.25f, layerMask))
         {
-            Debug.Log("grounded");
+            //Debug.Log("grounded");
             grounded = true;
         }
         else grounded = false;
@@ -77,17 +79,13 @@ public class PlayerMovement : MonoBehaviour
 
             //add some smoothing sometime
         float Acceleration = grounded ? playerGroundAcceleration :  playerAirAcceleration;
-        Vector3 movement = new Vector3(moveDir.x * Acceleration * Time.deltaTime, jumpStrength * Time.deltaTime, moveDir.y * Acceleration * Time.deltaTime);
+        
+        Vector3 moveRot = transform.rotation * new Vector3(moveDir.x, transform.position.y, moveDir.y);
+        Vector3 movement = new Vector3(moveRot.x * Acceleration * Time.deltaTime, jumpStrength * Time.deltaTime, moveRot.z * Acceleration * Time.deltaTime);
         rb.linearVelocity += movement;
         //if(rb.linearVelocity != Vector3.zero) Debug.Log($"player linear velocity is = {rb.linearVelocity}") ;
     }
 
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
     void Update()
     {
         GatherInputs();
